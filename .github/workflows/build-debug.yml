@@ -1,4 +1,4 @@
-name: Verificar e compilar APK de teste
+name: Testar FinControl e compilar APK mais AAB
 
 on:
   workflow_dispatch:
@@ -42,3 +42,16 @@ jobs:
         with:
           name: FinControl-2-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+
+      - name: Compilar Android App Bundle (AAB) para verificar o release
+        run: flutter build appbundle --release
+      - name: Conferir arquivo AAB gerado
+        run: |
+          ls -lh build/app/outputs/bundle/release/app-release.aab
+          shasum -a 256 build/app/outputs/bundle/release/app-release.aab
+          jarsigner -verify build/app/outputs/bundle/release/app-release.aab
+      - name: Disponibilizar AAB com assinatura provisoria (NAO PUBLICAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinControl-2-release-aab-assinatura-provisoria
+          path: build/app/outputs/bundle/release/app-release.aab
