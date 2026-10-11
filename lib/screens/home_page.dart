@@ -332,9 +332,11 @@ class _FinHomePageState extends State<FinHomePage> {
 
   Widget _categoryChart() {
     final categoryAmounts = expenseByCategory(_transactions);
-    if (categoryAmounts.isEmpty) return _emptyState(
-        'Sem despesas no período',
-        'Os gráficos aparecem quando você registra despesas.');
+    if (categoryAmounts.isEmpty) {
+      return _emptyState(
+          'Sem despesas no período',
+          'Os gráficos aparecem quando você registra despesas.');
+    }
     final sorted = categoryAmounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final maxValue = math.max(1, sorted.first.value);
@@ -478,7 +480,7 @@ class _FinHomePageState extends State<FinHomePage> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ],
           ])),
-      if (trailing != null) trailing,
+      ?trailing,
     ],
   );
 
