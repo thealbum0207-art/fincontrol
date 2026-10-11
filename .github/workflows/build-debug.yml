@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: fincontrol-android-build
+  cancel-in-progress: true
+
 jobs:
   android-debug:
     runs-on: ubuntu-latest
