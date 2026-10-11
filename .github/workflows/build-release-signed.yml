@@ -14,12 +14,6 @@ jobs:
   release-aab:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      FINCONTROL_UPLOAD_KEYSTORE_B64: ${{ secrets.FINCONTROL_UPLOAD_KEYSTORE_B64 }}
-      FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
-      FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
-      FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
-      FINCONTROL_EXPECTED_UPLOAD_SHA1: ${{ secrets.FINCONTROL_EXPECTED_UPLOAD_SHA1 }}
     steps:
       - name: Baixar projeto
         uses: actions/checkout@v4
@@ -35,6 +29,12 @@ jobs:
           cache: true
 
       - name: Conferir credenciais e chave de upload
+        env:
+          FINCONTROL_UPLOAD_KEYSTORE_B64: ${{ secrets.FINCONTROL_UPLOAD_KEYSTORE_B64 }}
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+          FINCONTROL_EXPECTED_UPLOAD_SHA1: ${{ secrets.FINCONTROL_EXPECTED_UPLOAD_SHA1 }}
         shell: bash
         run: |
           set -euo pipefail
@@ -61,6 +61,10 @@ jobs:
       - name: Criar estrutura Android
         run: flutter create --platforms=android --org com.app --project-name fincontrol .
       - name: Instalar dependencias e configurar release
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
         run: |
           flutter pub get
           rm -f test/widget_test.dart
@@ -70,6 +74,10 @@ jobs:
           flutter analyze
           flutter test
       - name: Compilar AAB assinado
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
         run: flutter build appbundle --release
       - name: Validar AAB
         run: |
