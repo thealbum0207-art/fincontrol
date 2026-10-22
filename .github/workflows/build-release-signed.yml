@@ -2,6 +2,12 @@ name: FinControl AAB release com assinatura autorizada
 
 on:
   workflow_dispatch:
+    inputs:
+      live_ads:
+        description: 'Exibir anuncios reais (somente depois da revisao AdMob)?'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -59,7 +65,9 @@ jobs:
           echo "Certificado autorizado verificado."
 
       - name: Criar estrutura Android
-        run: flutter create --platforms=android --org com.app --project-name fincontrol .
+        run: |
+          flutter create --platforms=android --org com.app --project-name fincontrol .
+          python3 tool/configure_admob.py
       - name: Instalar dependencias e configurar release
         env:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
@@ -78,7 +86,7 @@ jobs:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
           FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
           FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=${{ inputs.live_ads }}
       - name: Validar AAB
         run: |
           jarsigner -verify build/app/outputs/bundle/release/app-release.aab
