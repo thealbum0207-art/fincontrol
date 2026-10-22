@@ -33,6 +33,9 @@ jobs:
         run: |
           flutter create --platforms=android --org com.app --project-name fincontrol .
           python3 tool/configure_admob.py
+          # flutter create cria teste padrao para MyApp, que nao existe no FinControl.
+          # Manter apenas os testes reais versionados no repositorio.
+          rm -f test/widget_test.dart
       - name: Instalar dependencias
         run: flutter pub get
       - name: Analise estatica
