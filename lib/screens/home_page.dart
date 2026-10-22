@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../ads/fin_ad_banner.dart';
 import '../core/dates.dart';
 import '../core/finance_math.dart';
 import '../core/fin_theme.dart';
@@ -206,7 +207,11 @@ class _FinHomePageState extends State<FinHomePage> {
                     ),
                   ),
                 )),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const FinAdBanner(),
+          NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (index) => setState(() => _tab = index),
         destinations: const [
@@ -216,6 +221,8 @@ class _FinHomePageState extends State<FinHomePage> {
               selectedIcon: Icon(Icons.receipt_long), label: 'Lançamentos'),
           NavigationDestination(icon: Icon(Icons.track_changes_outlined),
               selectedIcon: Icon(Icons.track_changes), label: 'Orçamentos'),
+        ],
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
