@@ -4,7 +4,7 @@ Esta alteracao prepara **um banner** discreto no FinControl e **nao** muda o ban
 
 - App ID AdMob: `ca-app-pub-3964603090393340~3759405239`
 - Banner unit ID: `ca-app-pub-3964603090393340/4111381146`
-- SDK: `google_mobile_ads: ^6.0.0` (compativel com restricao Dart >=3.8 do repositorio)
+- SDK: `google_mobile_ads: 9.1.0` (requer Dart >=3.10 e Flutter >=3.38.1; fluxo validado em Flutter 3.47.7)
 - Versao: `2.0.1+201`. Confirme na Play Console se o versionCode 201 supera todas as versoes ja enviadas.
 - O fluxo cria Android durante o build e executa `tool/configure_admob.py` para incluir o App ID no AndroidManifest.
 
