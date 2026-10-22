@@ -1,0 +1,43 @@
+name: Validar FinControl e integracao AdMob
+
+on:
+  pull_request:
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'tool/configure_admob.py'
+      - '.github/workflows/validate-admob.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+      - name: Preparar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Preparar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Gerar plataforma Android e configurar AdMob
+        run: |
+          flutter create --platforms=android --org com.app --project-name fincontrol .
+          python3 tool/configure_admob.py
+      - name: Instalar dependencias
+        run: flutter pub get
+      - name: Analise estatica
+        run: flutter analyze
+      - name: Testes Flutter
+        run: flutter test
+      - name: Testar compilacao APK (anuncios de teste)
+        run: flutter build apk --debug --dart-define=ADMOB_LIVE_ADS=false
