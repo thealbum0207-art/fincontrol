@@ -3,12 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// Teste por padrao, inclusive em builds assinados para testes da Play Store.
-/// Para liberar anuncios reais: --dart-define=ADMOB_LIVE_ADS=true
-const _liveAds = bool.fromEnvironment('ADMOB_LIVE_ADS', defaultValue: false);
-const _bannerUnit = _liveAds
-    ? 'ca-app-pub-3964603090393340/4111381146'
-    : 'ca-app-pub-3940256099942544/6300978111';
+import 'fin_ad_config.dart';
 
 /// Banner discreto, acima da barra de navegacao e fora das areas financeiras.
 /// O consentimento UMP e consultado antes de qualquer solicitacao de anuncios.
@@ -73,7 +68,7 @@ class _FinAdBannerState extends State<FinAdBanner> {
       await MobileAds.instance.initialize();
       if (!mounted) return;
       final ad = BannerAd(
-        adUnitId: _bannerUnit,
+        adUnitId: finSelectedBannerId,
         size: AdSize.banner,
         request: const AdRequest(),
         listener: BannerAdListener(
@@ -117,10 +112,26 @@ class _FinAdBannerState extends State<FinAdBanner> {
             child: const Text('Preferencias de anuncios'),
           ),
         if (_banner != null)
-          SizedBox(
-            height: _banner!.size.height.toDouble(),
-            width: _banner!.size.width.toDouble(),
-            child: AdWidget(ad: _banner!),
+          Padding(
+            // Separacao visual do menu inferior para reduzir toques
+            // acidentais em publicidade ao navegar pelo app.
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Publicidade',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
+                const SizedBox(height: 5),
+                SizedBox(
+                  height: _banner!.size.height.toDouble(),
+                  width: _banner!.size.width.toDouble(),
+                  child: AdWidget(ad: _banner!),
+                ),
+              ],
+            ),
           ),
       ],
     );
