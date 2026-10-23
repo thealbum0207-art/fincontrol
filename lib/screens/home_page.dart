@@ -11,6 +11,7 @@ import '../data/finance_db.dart';
 import '../models/fin_transaction.dart';
 import '../widgets/transaction_tile.dart';
 import 'transaction_form_page.dart';
+import 'privacy_policy_page.dart';
 
 class FinHomePage extends StatefulWidget {
   const FinHomePage({super.key});
@@ -173,12 +174,19 @@ class _FinHomePageState extends State<FinHomePage> {
           ]),
         ]),
         actions: [IconButton(
+          tooltip: 'Política de Privacidade',
+          icon: const Icon(Icons.privacy_tip_outlined),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+                builder: (_) => const PrivacyPolicyPage()),
+          ),
+        ), IconButton(
           tooltip: 'Sobre os dados',
           icon: const Icon(Icons.info_outline_rounded),
           onPressed: () => showAboutDialog(
             context: context,
-            applicationName: 'FinControl 2.0',
-            applicationVersion: '2.0.0 (protótipo funcional)',
+            applicationName: 'FinControl',
+            applicationVersion: '2.0.3',
             children: [const Text(
               'Receitas, despesas e orçamentos ficam neste aparelho, em um banco SQLite local. '
               'Esta versão não possui sincronização, backup ou integração bancária. '
