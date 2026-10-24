@@ -34,6 +34,12 @@ Revisado em 23/10/2026, com base no código-fonte do repositório e nos avisos r
 - aprovação da Play Console **não** equivale a aprovação do AdMob;
 - receita ocorre com impressões válidas e não é garantida por abertura do app.
 
+## Proteção adicional dos dados (nova, ainda sem AAB de produção)
+
+- Usuário pode abrir **Mais opções → Exportar dados** e gerar um arquivo JSON com **todos** os lançamentos e orçamentos armazenados nesta versão do banco. Requer confirmação explícita; escolhe aplicativo/destino no compartilhamento do Android; nenhuma transmissão automática para a FluxTools.
+- Arquivo **não é criptografado**: avisar para guardar em local privado. O compartilhamento não garante que a cópia foi salva; verificar no destino escolhido.
+- A exportação **não** fornece importação automática e **não** recupera dados de versões anteriores nem substitui teste de migração. Não publicar sem validar a passagem 1.0.2 → versão nova.
+
 ## Entregas desta ramificação
 
 - Página interna de Política de Privacidade visível no cabeçalho;
