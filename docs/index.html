@@ -1,10 +1,55 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FinControl — FluxTools</title>
-<meta name="description" content="Página oficial de informações e privacidade do FinControl.">
-<style>body{font:16px/1.7 system-ui,sans-serif;margin:0;padding:24px;background:#f5faf8;color:#14252c}.wrap{max-width:720px;margin:12vh auto;background:white;border-radius:20px;padding:40px;box-shadow:0 9px 30px #163c3012}h1{font-size:36px;margin:0;color:#106b59}a{color:#087d65;font-weight:700}p{max-width:60ch}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a2828">
+  <meta name="description" content="FluxTools: desenvolvedora do FinControl para Android. Informações oficiais, privacidade e suporte.">
+  <meta name="robots" content="index,follow">
+  <title>FluxTools · FinControl para Android</title>
+  <style>
+    :root{color-scheme:dark;--bg:#091719;--card:#102629;--line:#28504a;--mint:#91e5c8;--muted:#b7d0c9;--text:#f6fffa}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 4%,#154d40 0,transparent 36%),var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
+    a{color:var(--mint)}.wrap{width:min(100% - 40px,1024px);margin:auto}
+    header{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
+    .brand{font-weight:900;letter-spacing:.06em;font-size:20px}.brand span{color:var(--mint)}
+    .tag{color:var(--muted);font-size:13px}nav{display:flex;flex-wrap:wrap;gap:18px}nav a{font-size:14px;text-decoration:none}
+    main{padding:70px 0 40px}.eyebrow{display:inline-block;color:var(--mint);font-weight:800;letter-spacing:.12em;font-size:12px}
+    h1{font-size:clamp(37px,6vw,65px);letter-spacing:-.05em;line-height:1.1;max-width:720px;margin:18px 0}
+    h1 em{font-style:normal;color:var(--mint)}.lead{font-size:18px;max-width:580px;color:var(--muted)}
+    .buttons{display:flex;gap:12px;flex-wrap:wrap;margin:30px 0 64px}
+    .btn{background:var(--mint);color:#07221d;border:1px solid var(--mint);border-radius:13px;padding:13px 20px;font-weight:800;text-decoration:none}
+    .btn.outline{background:transparent;color:var(--mint)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .panel{background:linear-gradient(150deg,#143a33,#0f2225);border:1px solid var(--line);border-radius:18px;padding:23px}
+    .panel h2{font-size:18px;margin:0 0 9px}.panel p{color:var(--muted);margin:0;font-size:14px}
+    .note{max-width:760px;border-left:3px solid var(--mint);padding:8px 0 8px 15px;color:var(--muted);margin-top:45px}
+    footer{border-top:1px solid var(--line);margin-top:52px;padding:25px 0 35px;color:var(--muted);font-size:13px}
+    @media(max-width:720px){.grid{grid-template-columns:1fr}header{align-items:flex-start;gap:15px;flex-direction:column}main{padding-top:49px}.buttons{margin-bottom:45px}}
+  </style>
 </head>
-<body><main class="wrap"><h1>FinControl</h1><p>Finanças pessoais com mais organização. Um aplicativo da FluxTools para registrar receitas, despesas e orçamentos.</p><p><a href="./privacy/">Ler a Política de Privacidade do FinControl →</a></p><p>Contato: <a href="https://github.com/thealbum0207-art/fincontrol/issues/new">suporte do projeto</a> (canal público; não compartilhe dados sensíveis).</p></main></body>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">FLUX<span>TOOLS</span> <span class="tag">· Aplicativos Android</span></div>
+    <nav aria-label="Navegação principal"><a href="#fincontrol">FinControl</a><a href="./privacy/">Privacidade</a><a href="./support/">Suporte</a></nav>
+  </header>
+  <main id="fincontrol">
+    <span class="eyebrow">DESENVOLVIMENTO DE APLICATIVOS</span>
+    <h1>Organize seu dinheiro.<br><em>Tenha mais clareza.</em></h1>
+    <p class="lead">Conheça o FinControl: Finanças Pessoais, aplicativo da FluxTools para registrar receitas, despesas e limites de orçamento de forma prática, com consulta local no Android.</p>
+    <div class="buttons">
+      <a class="btn" href="https://play.google.com/store/apps/details?id=com.app.fincontrol" rel="noopener noreferrer">Ver FinControl na Google Play</a>
+      <a class="btn outline" href="./privacy/">Ler Política de Privacidade</a>
+    </div>
+    <section class="grid" aria-label="Principais funcionalidades">
+      <div class="panel"><h2>Receitas e despesas</h2><p>Cadastre suas movimentações e consulte o saldo dos lançamentos registrados.</p></div>
+      <div class="panel"><h2>Gastos por categoria</h2><p>Veja a distribuição de suas despesas para compreender melhor o mês.</p></div>
+      <div class="panel"><h2>Orçamentos mensais</h2><p>Defina limites por categoria e acompanhe o quanto já foi utilizado.</p></div>
+    </section>
+    <p class="note">O FinControl não é uma instituição bancária e não sincroniza contas bancárias. Os registros são armazenados localmente no dispositivo. Para informações sobre publicidade e dados técnicos, consulte a <a href="./privacy/">Política de Privacidade</a>.</p>
+  </main>
+  <footer><p>© 2026 FluxTools · Aplicativo Android: com.app.fincontrol · <a href="./support/">Suporte</a> · <a href="./privacy/">Privacidade</a></p></footer>
+</div>
+</body>
 </html>
