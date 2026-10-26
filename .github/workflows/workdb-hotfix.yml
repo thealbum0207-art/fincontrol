@@ -1,0 +1,106 @@
+name: FinControl HOTFIX WorkManager - AAB protegido
+
+on:
+  push:
+    branches:
+      - fix/workmanager-r8-launch
+    paths:
+      - '.github/workflows/workdb-hotfix.yml'
+      - 'tool/configure_room_r8.py'
+      - 'tool/check_workdb_ctor.py'
+      - 'pubspec.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fincontrol-crash-hotfix
+  cancel-in-progress: false
+
+jobs:
+  crash-hotfix-aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+      - name: Instalar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Conferir credenciais e chave de upload
+        env:
+          FINCONTROL_UPLOAD_KEYSTORE_B64: ${{ secrets.FINCONTROL_UPLOAD_KEYSTORE_B64 }}
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+          FINCONTROL_EXPECTED_UPLOAD_SHA1: ${{ secrets.FINCONTROL_EXPECTED_UPLOAD_SHA1 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$FINCONTROL_UPLOAD_KEYSTORE_B64" || -z "$FINCONTROL_STORE_PASSWORD" || -z "$FINCONTROL_KEY_ALIAS" || -z "$FINCONTROL_KEY_PASSWORD" || -z "$FINCONTROL_EXPECTED_UPLOAD_SHA1" ]]; then
+            echo "Segredos de assinatura ausentes. Configure cinco secrets no repositorio."
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$FINCONTROL_UPLOAD_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/fincontrol-upload.jks"
+          echo "FINCONTROL_KEYSTORE_FILE=$RUNNER_TEMP/fincontrol-upload.jks" >> "$GITHUB_ENV"
+          actual_sha="$(keytool -list -v -keystore "$RUNNER_TEMP/fincontrol-upload.jks" -alias "$FINCONTROL_KEY_ALIAS" -storepass "$FINCONTROL_STORE_PASSWORD" | sed -nE 's/^[[:space:]]*SHA1: ([A-Fa-f0-9:]+).*$/\1/p' | head -1)"
+          if [[ -z "$actual_sha" ]]; then
+            echo "Certificado da keystore nao foi reconhecido."
+            exit 1
+          fi
+          normalized_actual="$(echo "$actual_sha" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
+          normalized_expected="$(echo "$FINCONTROL_EXPECTED_UPLOAD_SHA1" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
+          if [[ "$normalized_actual" != "$normalized_expected" ]]; then
+            echo "Assinatura diferente do certificado de upload esperado pela Play Console. Nao gerar o AAB."
+            exit 1
+          fi
+          echo "Certificado autorizado verificado."
+
+      - name: Criar estrutura Android
+        run: |
+          flutter create --platforms=android --org com.app --project-name fincontrol .
+          python3 tool/configure_admob.py
+      - name: Instalar dependencias e configurar release
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+        run: |
+          flutter pub get
+          rm -f test/widget_test.dart
+          python3 tool/configure_release_signing.py
+          python3 tool/configure_room_r8.py
+      - name: Analisar e testar
+        run: |
+          flutter analyze
+          flutter test
+      - name: Compilar AAB assinado
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+        run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=false
+      - name: Bloquear AAB com WorkDatabase sem construtor
+        run: python3 tool/check_workdb_ctor.py build/app/outputs/bundle/release/app-release.aab
+
+      - name: Validar AAB
+        run: |
+          jarsigner -verify build/app/outputs/bundle/release/app-release.aab
+          test -s build/app/outputs/bundle/release/app-release.aab
+      - name: Disponibilizar AAB assinado
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinControl-2.0.4-HOTFIX-WorkManager-AAB-assinado
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 7
