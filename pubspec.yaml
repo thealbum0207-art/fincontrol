@@ -1,7 +1,7 @@
 name: fincontrol
 description: FinControl - Controle financeiro pessoal offline.
 publish_to: none
-version: 2.0.2+10003
+version: 2.0.5+10006
 
 environment:
   sdk: '>=3.8.0 <4.0.0'

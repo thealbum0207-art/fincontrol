@@ -22,6 +22,16 @@ metadata = (
     f' android:value="{APPLICATION_ID}"/>'
 )
 text = text[:end + 1] + metadata + text[end + 1:]
+# Keep the Play Console advertising ID declaration aligned with the actual
+# Android 13+ manifest. This is needed even when the transitive SDK's manifest
+# fails to merge the permission into a given release artifact.
+AD_ID_PERMISSION = "com.google.android.gms.permission.AD_ID"
+if AD_ID_PERMISSION not in text:
+    text = text.replace(
+        "<application",
+        '<uses-permission android:name="' + AD_ID_PERMISSION + '" />\n    <application',
+        1,
+    )
 if "android.permission.INTERNET" not in text:
     text = text.replace(
         "<application",
