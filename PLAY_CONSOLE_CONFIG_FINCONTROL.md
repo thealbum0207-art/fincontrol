@@ -1,5 +1,5 @@
 # Configuração integral da Google Play Console — FinControl
-**Auditoria preparada em 24 de outubro de 2026 — sem acesso autenticado à conta Google.**
+**Atualizado em 26 de outubro de 2026 — evidência de produção fornecida por captura de tela; sem acesso autenticado à conta Google.**
 
 > Este documento é um roteiro verificável, não uma afirmação de que todos os itens foram aplicados na Play Console. Os estados refletem prints anteriores e código GitHub. Informações atuais da conta devem ser conferidas antes de publicar. Não editar nem publicar em produção sem validar migração dos dados financeiros.
 
@@ -7,7 +7,7 @@
 - Aplicativo: FinControl: Finanças Pessoais
 - Desenvolvedor informado: FluxTools
 - Package: `com.app.fincontrol`
-- AAB submetido à Play Console conforme print anterior: `2.0.2 (10003)` (em revisão no print de 23/10/2026; status atual não verificado).
+- **Atualização confirmada por screenshot de Produção em 26/10/2026:** versão `2.0.2 (10003)` com status **Aprovado**, lançamento iniciado em **100%** em 23/10/2026 às 13h53, cobertura exibida de **178 países/regiões**. A disponibilidade da ficha pública ainda precisa ser checada independentemente; aprovação de produção não significa aprovação no AdMob.
 - Próxima versão em PR rascunho: `2.0.3 (10004)`; **não enviada**.
 - Flutter; banco local SQLite `fincontrol_v2.db`; integração Google Mobile Ads com modo de teste padrão.
 - Política pública: https://thealbum0207-art.github.io/fincontrol/privacy/
@@ -15,7 +15,7 @@
 ## Ordem de checagem — bloquear novidades até eliminar pendências de produção
 | Setor da Console | Situação conhecida | Ação e critério |
 |---|---|---|
-| Visão geral da publicação | Impressão anterior: lançamento de produção e política enviados à análise; publicação gerenciada ativa | Conferir se aprovados / prontos para publicar / rejeitados. NÃO publicar produção enquanto migração de dados estiver indefinida |
+| Visão geral da publicação | Print mais recente de Produção: 2.0.2 (10003) **Aprovado**, início 100% (23/10/2026); 178 países/regiões | Confirmar ficha pública visível e pendências restantes. Não alterar versão 2.0.2 nem disponibilizar 2.0.3 sem validar migração de dados |
 | Status da política | Rejeição de 23/10 por URL manus.space inválida | Novo link GitHub Pages salvo e enviado à análise. Conferir resultado e acessibilidade dentro do app atualmente publicado |
 | ID de publicidade | Declaração `Sim`, motivo `Publicidade ou marketing` registrada | Confirmar se SDK inclui permissão AD_ID no manifesto final; marcar finalidades adicionais somente se verdadeiras |
 | Contém anúncios | Não confirmado na Play Console | Declarar `Sim` se SDK e banner incluídos. Conferir ficha pública |
@@ -32,8 +32,8 @@
 | Integridade / assinatura | Keystore de upload foi testada no Termux, mas status em todas as faixas não revalidado | Manter certificado original, versionCode crescente e Play App Signing |
 | Relatório de pré-lançamento | Não consultado | Revisar ANRs/crashes, layout, acessibilidade, avisos críticos |
 | Testes fechados / abertos | Prints indicam teste fechado concluído e aberto iniciado | Não significa produção pública; conferir status atual |
-| Produção | Último print: versão 10003 enviada à revisão | Validar integridade e dados locais de 1.0.2 → 2.0.2 e 2.0.3 antes de liberar distribuição |
-| Monetização AdMob | Status `Requer revisão`; nenhum vínculo à loja no print | Não configurar anúncios comerciais ainda; vincular app após estar publicamente disponível na Play |
+| Produção | Screenshot em 26/10/2026: 10003 (2.0.2) **Aprovado**, lançamento iniciado em 100%; 178 países/regiões | Produção já foi iniciada. Testar preservação de dados em futuras atualizações 2.0.3 e conferir ficha pública e eventuais restrições de conta/dispositivo |
+| Monetização AdMob | Último print: `Requer revisão`, sem vínculo à loja; produção 2.0.2 agora aprovada | Tentar vincular pela URL pública da Play quando acessível e solicitar a revisão no AdMob. Não ativar anúncios comerciais antes da aprovação |
 | app-ads.txt | Preparado apenas em `admob_assets/app-ads.txt` no PR | Publicar `https://DOMINIO/app-ads.txt` na RAIZ do domínio listado na ficha pública. O GitHub Pages de projeto `/fincontrol/` sozinho NÃO cumpre a localização requerida |
 
 ## Loja: textos prontos e honestos
