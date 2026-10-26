@@ -7,6 +7,8 @@ on:
       - improvements/privacy-in-app-2.0.3
     paths:
       - '.github/workflows/preview-aab.yml'
+      - 'tool/configure_room_r8.py'
+      - 'tool/check_workdb_ctor.py'
 
 permissions:
   contents: read
@@ -87,7 +89,9 @@ jobs:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
           FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
           FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
-        run: python3 tool/configure_release_signing.py
+        run: |
+          python3 tool/configure_release_signing.py
+          python3 tool/configure_room_r8.py
 
       - name: Compilar AAB assinado com banners de teste
         env:
@@ -95,6 +99,9 @@ jobs:
           FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
           FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
         run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=false
+
+      - name: Verificar construtor do WorkManager no DEX final
+        run: python3 tool/check_workdb_ctor.py build/app/outputs/bundle/release/app-release.aab
 
       - name: Confirmar integridade e assinatura do AAB
         run: |
