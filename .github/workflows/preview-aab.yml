@@ -74,7 +74,7 @@ jobs:
           umask 077
           printf '%s' "$FINCONTROL_UPLOAD_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/fincontrol-upload.jks"
           echo "FINCONTROL_KEYSTORE_FILE=$RUNNER_TEMP/fincontrol-upload.jks" >> "$GITHUB_ENV"
-          actual_sha="$(keytool -list -v -keystore "$RUNNER_TEMP/fincontrol-upload.jks" -alias "$FINCONTROL_KEY_ALIAS" -storepass "$FINCONTROL_STORE_PASSWORD" | sed -nE 's/^[[:space:]]*SHA1: ([A-Fa-f0-9:]+).*$/\\1/p' | head -1)"
+          actual_sha="$(keytool -list -v -keystore "$RUNNER_TEMP/fincontrol-upload.jks" -alias "$FINCONTROL_KEY_ALIAS" -storepass "$FINCONTROL_STORE_PASSWORD" | sed -nE 's/^[[:space:]]*SHA1: ([A-Fa-f0-9:]+).*$/\1/p' | head -1)"
           normalized_actual="$(echo "$actual_sha" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
           normalized_expected="$(echo "$FINCONTROL_EXPECTED_UPLOAD_SHA1" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
           if [[ -z "$normalized_actual" || "$normalized_actual" != "$normalized_expected" ]]; then
