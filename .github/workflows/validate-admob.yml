@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'lib/**'
+      - 'test/**'
       - 'pubspec.yaml'
       - 'tool/configure_admob.py'
       - '.github/workflows/validate-admob.yml'

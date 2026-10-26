@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../ads/fin_ad_banner.dart';
 import '../core/dates.dart';
@@ -8,9 +10,11 @@ import '../core/finance_math.dart';
 import '../core/fin_theme.dart';
 import '../core/money.dart';
 import '../data/finance_db.dart';
+import '../data/fin_export.dart';
 import '../models/fin_transaction.dart';
 import '../widgets/transaction_tile.dart';
 import 'transaction_form_page.dart';
+import 'privacy_policy_page.dart';
 
 class FinHomePage extends StatefulWidget {
   const FinHomePage({super.key});
@@ -152,6 +156,64 @@ class _FinHomePageState extends State<FinHomePage> {
     }
   }
 
+  Future<void> _exportData() async {
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Exportar dados financeiros?'),
+        content: const Text(
+          'O arquivo terá todos os lançamentos e limites de orçamento, '
+          'incluindo descrições e valores. Ele NÃO é protegido por senha. '
+          'Escolha um destino privado e não compartilhe publicamente. '
+          'Esta função exporta os registros; ainda não importa arquivos '
+          'nem recupera dados de versões antigas.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
+    if (approved != true) return;
+    try {
+      final data = await FinExport.fromLocalDatabase();
+      if (!mounted) return;
+      final now = DateTime.now().toUtc();
+      String digits(int n) => n.toString().padLeft(2, '0');
+      final name = 'fincontrol_dados_${now.year}${digits(now.month)}'
+          '${digits(now.day)}_${digits(now.hour)}${digits(now.minute)}.json';
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          title: 'Dados do FinControl',
+          files: [XFile.fromData(
+            utf8.encode(data),
+            mimeType: 'application/json',
+          )],
+          fileNameOverrides: [name],
+        ),
+      );
+      if (!mounted) return;
+      if (result.status == ShareResultStatus.success) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Exportação compartilhada. Confirme se o arquivo '
+              'foi salvo no destino escolhido.'),
+        ));
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Não foi possível exportar os dados. '
+            'Nenhum lançamento foi alterado.'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,18 +235,53 @@ class _FinHomePageState extends State<FinHomePage> {
           ]),
         ]),
         actions: [IconButton(
-          tooltip: 'Sobre os dados',
-          icon: const Icon(Icons.info_outline_rounded),
-          onPressed: () => showAboutDialog(
-            context: context,
-            applicationName: 'FinControl 2.0',
-            applicationVersion: '2.0.0 (protótipo funcional)',
-            children: [const Text(
-              'Receitas, despesas e orçamentos ficam neste aparelho, em um banco SQLite local. '
-              'Esta versão não possui sincronização, backup ou integração bancária. '
-              'Se você remover o app ou limpar seus dados, poderá perder os registros.'),
-            ],
+          tooltip: 'Política de Privacidade',
+          icon: const Icon(Icons.privacy_tip_outlined),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+                builder: (_) => const PrivacyPolicyPage()),
           ),
+        ), PopupMenuButton<String>(
+          tooltip: 'Mais opções',
+          icon: const Icon(Icons.more_vert),
+          onSelected: (value) {
+            if (value == 'export') {
+              _exportData();
+            } else if (value == 'about') {
+              showAboutDialog(
+                context: context,
+                applicationName: 'FinControl',
+                applicationVersion: '2.0.3',
+                children: [const Text(
+                  'Receitas, despesas e orçamentos ficam neste aparelho, '
+                  'em um banco SQLite local. Esta versão não possui '
+                  'sincronização ou integração bancária. Use a opção '
+                  'Exportar dados para guardar uma cópia externa. '
+                  'A exportação não recupera registros de versões antigas.',
+                )],
+              );
+            }
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem<String>(
+              value: 'export',
+              child: ListTile(
+                dense: true,
+                leading: Icon(Icons.file_upload_outlined),
+                title: Text('Exportar dados'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'about',
+              child: ListTile(
+                dense: true,
+                leading: Icon(Icons.info_outline_rounded),
+                title: Text('Sobre os dados'),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ],
         ), const SizedBox(width: 8)],
       ),
       body: _loading

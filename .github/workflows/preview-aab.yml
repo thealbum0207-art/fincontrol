@@ -1,0 +1,118 @@
+name: FinControl 2.0.3 - gerar APK preview e AAB assinado
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - improvements/privacy-in-app-2.0.3
+    paths:
+      - '.github/workflows/preview-aab.yml'
+      - 'tool/configure_room_r8.py'
+      - 'tool/check_workdb_ctor.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fincontrol-preview-aab-203
+  cancel-in-progress: false
+
+jobs:
+  preview-and-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Obter codigo da versao 2.0.3
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar Flutter estavel
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Gerar Android e configurar AdMob sem anuncios reais
+        run: |
+          flutter create --platforms=android --org com.app --project-name fincontrol .
+          python3 tool/configure_admob.py
+          rm -f test/widget_test.dart
+          flutter pub get
+
+      - name: Validar codigo e testes
+        run: |
+          flutter analyze
+          flutter test
+
+      - name: Compilar APK debug para preview no celular
+        run: flutter build apk --debug --dart-define=ADMOB_LIVE_ADS=false
+
+      - name: Guardar APK de preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinControl-2.0.3-preview-APK
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Validar certificado de upload autorizado
+        env:
+          FINCONTROL_UPLOAD_KEYSTORE_B64: ${{ secrets.FINCONTROL_UPLOAD_KEYSTORE_B64 }}
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+          FINCONTROL_EXPECTED_UPLOAD_SHA1: ${{ secrets.FINCONTROL_EXPECTED_UPLOAD_SHA1 }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$FINCONTROL_UPLOAD_KEYSTORE_B64" || -z "$FINCONTROL_STORE_PASSWORD" || -z "$FINCONTROL_KEY_ALIAS" || -z "$FINCONTROL_KEY_PASSWORD" || -z "$FINCONTROL_EXPECTED_UPLOAD_SHA1" ]]; then
+            echo "Credenciais de assinatura ausentes."
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$FINCONTROL_UPLOAD_KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/fincontrol-upload.jks"
+          echo "FINCONTROL_KEYSTORE_FILE=$RUNNER_TEMP/fincontrol-upload.jks" >> "$GITHUB_ENV"
+          actual_sha="$(keytool -list -v -keystore "$RUNNER_TEMP/fincontrol-upload.jks" -alias "$FINCONTROL_KEY_ALIAS" -storepass "$FINCONTROL_STORE_PASSWORD" | sed -nE 's/^[[:space:]]*SHA1: ([A-Fa-f0-9:]+).*$/\1/p' | head -1)"
+          normalized_actual="$(echo "$actual_sha" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
+          normalized_expected="$(echo "$FINCONTROL_EXPECTED_UPLOAD_SHA1" | tr -d '[:space:]:' | tr '[:lower:]' '[:upper:]')"
+          if [[ -z "$normalized_actual" || "$normalized_actual" != "$normalized_expected" ]]; then
+            echo "Chave de upload diferente da autorizada. Cancelando."
+            exit 1
+          fi
+
+      - name: Configurar assinatura sem expor passwords
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+        run: |
+          python3 tool/configure_release_signing.py
+          python3 tool/configure_room_r8.py
+
+      - name: Compilar AAB assinado com banners de teste
+        env:
+          FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
+          FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
+          FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
+        run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=false
+
+      - name: Verificar construtor do WorkManager no DEX final
+        run: python3 tool/check_workdb_ctor.py build/app/outputs/bundle/release/app-release.aab
+
+      - name: Confirmar integridade e assinatura do AAB
+        run: |
+          test -s build/app/outputs/bundle/release/app-release.aab
+          jarsigner -verify build/app/outputs/bundle/release/app-release.aab
+          sha256sum build/app/outputs/bundle/release/app-release.aab
+
+      - name: Guardar AAB assinado para analise (NAO PUBLICAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinControl-2.0.3-preview-AAB-assinado
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 7
+          if-no-files-found: error
