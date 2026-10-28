@@ -77,16 +77,28 @@ jobs:
           flutter pub get
           rm -f test/widget_test.dart
           python3 tool/configure_release_signing.py
+          python3 tool/configure_room_r8.py
       - name: Analisar e testar
         run: |
           flutter analyze
           flutter test
+      - name: Verificar IDs AdMob e versao de release
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'version: 2.0.6+10007' pubspec.yaml
+          grep -q 'ca-app-pub-3964603090939340~3759405239' tool/configure_admob.py
+          grep -q 'ca-app-pub-3964603090939340/4111381146' lib/ads/fin_ad_banner.dart
       - name: Compilar AAB assinado
         env:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
           FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
           FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
         run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=${{ inputs.live_ads }}
+      - name: Proteger inicializacao WorkManager e permissao AD_ID
+        run: |
+          python3 tool/check_workdb_ctor.py build/app/outputs/bundle/release/app-release.aab
+          python3 tool/check_ad_id_aab.py build/app/outputs/bundle/release/app-release.aab
       - name: Validar AAB
         run: |
           jarsigner -verify build/app/outputs/bundle/release/app-release.aab
