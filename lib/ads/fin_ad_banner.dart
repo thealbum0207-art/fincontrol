@@ -7,7 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 /// Para liberar anuncios reais: --dart-define=ADMOB_LIVE_ADS=true
 const _liveAds = bool.fromEnvironment('ADMOB_LIVE_ADS', defaultValue: false);
 const _bannerUnit = _liveAds
-    ? 'ca-app-pub-3964603090393340/4111381146'
+    ? 'ca-app-pub-3964603090939340/4111381146'
     : 'ca-app-pub-3940256099942544/6300978111';
 
 /// Banner discreto, acima da barra de navegacao e fora das areas financeiras.
