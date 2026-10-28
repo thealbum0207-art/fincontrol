@@ -2,10 +2,12 @@
 
 Esta alteracao prepara **um banner** discreto no FinControl e **nao** muda o banco de dados local.
 
-- App ID AdMob: `ca-app-pub-3964603090393340~3759405239`
-- Banner unit ID: `ca-app-pub-3964603090393340/4111381146`
+Observacao: foram corrigidos os IDs para o publisher exibido pela conta AdMob do FinControl na captura enviada em 28/10/2026. A branch e apenas preparatoria: nao ativar producao sem confirmar o codigo do publisher e os IDs de app e bloco no painel AdMob, alem de verificar o maior versionCode em todas as faixas do Google Play.
+
+- App ID AdMob: `ca-app-pub-3964603090939340~3759405239`
+- Banner unit ID: `ca-app-pub-3964603090939340/4111381146`
 - SDK: `google_mobile_ads: 9.1.0` (requer Dart >=3.10 e Flutter >=3.38.1; fluxo validado em Flutter 3.47.7)
-- Versao: `2.0.1+201`. Confirme na Play Console se o versionCode 201 supera todas as versoes ja enviadas.
+- Versao: `2.0.6+10007`. Confirme na Play Console se o versionCode 10007 supera todas as versoes ja enviadas.
 - O fluxo cria Android durante o build e executa `tool/configure_admob.py` para incluir o App ID no AndroidManifest.
 
 ## Modos de anuncios
