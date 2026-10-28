@@ -3,7 +3,7 @@
 from pathlib import Path
 
 MANIFEST = Path("android/app/src/main/AndroidManifest.xml")
-APPLICATION_ID = "ca-app-pub-3964603090393340~3759405239"
+APPLICATION_ID = "ca-app-pub-3964603090939340~3759405239"
 
 if not MANIFEST.exists():
     raise SystemExit("AndroidManifest.xml ausente")
@@ -22,6 +22,16 @@ metadata = (
     f' android:value="{APPLICATION_ID}"/>'
 )
 text = text[:end + 1] + metadata + text[end + 1:]
+# Keep the Play Console advertising ID declaration aligned with the actual
+# Android 13+ manifest. This is needed even when the transitive SDK's manifest
+# fails to merge the permission into a given release artifact.
+AD_ID_PERMISSION = "com.google.android.gms.permission.AD_ID"
+if AD_ID_PERMISSION not in text:
+    text = text.replace(
+        "<application",
+        '<uses-permission android:name="' + AD_ID_PERMISSION + '" />\n    <application',
+        1,
+    )
 if "android.permission.INTERNET" not in text:
     text = text.replace(
         "<application",

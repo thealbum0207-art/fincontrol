@@ -1,11 +1,13 @@
 # Monetizacao AdMob — FinControl
 
-Esta alteracao prepara **um banner** discreto no FinControl e **nao** muda o banco de dados local.
+Esta alteracao prepara **um banner** discreto no FinControl e **nao** muda o banco de dados local. A versao 2.0.6 deve preservar os ajustes da branch fix/workmanager-ad-id-10006 (construtor WorkDatabase, R8 e permissao AD_ID).
 
-- App ID AdMob: `ca-app-pub-3964603090393340~3759405239`
-- Banner unit ID: `ca-app-pub-3964603090393340/4111381146`
+IDs comerciais atualizados para os identificadores mostrados no painel AdMob do FinControl. Confirme-os novamente na conta antes de gerar AAB com anuncios reais.
+
+- App ID AdMob: `ca-app-pub-3964603090939340~3759405239`
+- Banner unit ID: `ca-app-pub-3964603090939340/4111381146`
 - SDK: `google_mobile_ads: 9.1.0` (requer Dart >=3.10 e Flutter >=3.38.1; fluxo validado em Flutter 3.47.7)
-- Versao: `2.0.1+201`. Confirme na Play Console se o versionCode 201 supera todas as versoes ja enviadas.
+- Versao: `2.0.6+10007`. Confirme na Play Console se o versionCode 10007 supera todas as versoes ja enviadas.
 - O fluxo cria Android durante o build e executa `tool/configure_admob.py` para incluir o App ID no AndroidManifest.
 
 ## Modos de anuncios
