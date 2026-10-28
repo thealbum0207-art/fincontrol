@@ -3,7 +3,7 @@
 from pathlib import Path
 
 MANIFEST = Path("android/app/src/main/AndroidManifest.xml")
-APPLICATION_ID = "ca-app-pub-3964603090393340~3759405239"
+APPLICATION_ID = "ca-app-pub-3964603090939340~3759405239"
 
 if not MANIFEST.exists():
     raise SystemExit("AndroidManifest.xml ausente")
