@@ -50,6 +50,15 @@ class FinanceDb {
     return rows.map(FinTransaction.fromMap).toList();
   }
 
+  /// Leitura integral apenas para exportação solicitada pelo usuário.
+  /// Não modifica o banco local.
+  Future<List<FinTransaction>> allTransactions() async {
+    final db = await database;
+    final rows = await db.query('transactions',
+        orderBy: 'date_key DESC, id DESC');
+    return rows.map(FinTransaction.fromMap).toList();
+  }
+
   Future<int> totalBalanceCents() async {
     final db = await database;
     final rows = await db.rawQuery('''

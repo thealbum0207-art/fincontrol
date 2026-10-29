@@ -68,6 +68,7 @@ jobs:
         run: |
           flutter create --platforms=android --org com.app --project-name fincontrol .
           python3 tool/configure_admob.py
+          python3 tool/configure_branding.py
       - name: Instalar dependencias e configurar release
         env:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
@@ -86,7 +87,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'version: 2.0.6+10007' pubspec.yaml
+          grep -q 'version: 2.0.7+10008' pubspec.yaml
           grep -q 'ca-app-pub-3964603090939340~3759405239' tool/configure_admob.py
           grep -q 'ca-app-pub-3964603090939340/4111381146' lib/ads/fin_ad_banner.dart
       - name: Compilar AAB assinado

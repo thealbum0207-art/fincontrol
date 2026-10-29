@@ -1,9 +1,9 @@
-name: FinControl 2.0.6 AAB comercial — compilacao sem publicar
+name: FinControl 2.0.7 AAB assinado — QA sem publicar
 
 on:
   push:
     branches:
-      - fix/admob-live-safe-2.0.6
+      - improve/fincontrol-2.0.7-data-brand
     paths:
       - '.github/workflows/build-aab-live-preview.yml'
 
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: fincontrol-206-commercial-preview
+  group: fincontrol-207-qa-preview
   cancel-in-progress: false
 
 jobs:
@@ -65,12 +65,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fxq 'version: 2.0.6+10007' pubspec.yaml
+          grep -Fxq 'version: 2.0.7+10008' pubspec.yaml
           grep -Fq 'ca-app-pub-3964603090939340~3759405239' tool/configure_admob.py
           grep -Fq 'ca-app-pub-3964603090939340/4111381146' lib/ads/fin_ad_banner.dart
           grep -Fq "bool.fromEnvironment('ADMOB_LIVE_ADS', defaultValue: false)" lib/ads/fin_ad_banner.dart
           flutter create --platforms=android --org com.app --project-name fincontrol .
           python3 tool/configure_admob.py
+          python3 tool/configure_branding.py
+          grep -Fq 'android:label="FinControl"' android/app/src/main/AndroidManifest.xml
+          test -s android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
       - name: Instalar dependencias e preservar correcoes de inicializacao
         env:
@@ -114,7 +117,7 @@ jobs:
       - name: Disponibilizar AAB comercial para revisao humana
         uses: actions/upload-artifact@v4
         with:
-          name: FinControl-2.0.6-10007-AAB-COMERCIAL-NAO-PUBLICADO
+          name: FinControl-2.0.7-10008-AAB-RELEASE-NAO-PUBLICADO
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 7
