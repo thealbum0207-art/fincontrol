@@ -16,7 +16,7 @@ String _moneyInReais(int cents) {
 }
 
 String transactionsToCsv(Iterable<FinTransaction> entries) {
-  final rows = <String>['Tipo;Descrição;Valor (R$);Categoria;Data;Observação'];
+  final rows = <String>['Tipo;Descrição;Valor (R\$);Categoria;Data;Observação'];
   for (final entry in entries) {
     rows.add([
       _cell(entry.kind.label),
@@ -31,7 +31,7 @@ String transactionsToCsv(Iterable<FinTransaction> entries) {
 }
 
 String budgetsToCsv(Map<String, int> budgets) {
-  final rows = <String>['Categoria;Limite mensal (R$)'];
+  final rows = <String>['Categoria;Limite mensal (R\$)'];
   final categories = budgets.keys.toList()..sort();
   for (final category in categories) {
     rows.add('${_cell(category)};${_cell(_moneyInReais(budgets[category]!))}');
