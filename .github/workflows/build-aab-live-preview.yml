@@ -72,6 +72,8 @@ jobs:
           flutter create --platforms=android --org com.app --project-name fincontrol .
           python3 tool/configure_admob.py
           python3 tool/configure_branding.py
+          grep -Fq 'android:label="FinControl"' android/app/src/main/AndroidManifest.xml
+          test -s android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
       - name: Instalar dependencias e preservar correcoes de inicializacao
         env:
