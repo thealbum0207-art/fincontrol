@@ -38,7 +38,7 @@ void main() {
 
   test('arquivo vazio contém somente cabeçalho', () {
     expect(transactionsToCsv([]),
-      'Tipo;Descrição;Valor (R$);Categoria;Data;Observação\r\n');
-    expect(budgetsToCsv({}), 'Categoria;Limite mensal (R$)\r\n');
+      'Tipo;Descrição;Valor (R\$);Categoria;Data;Observação\r\n');
+    expect(budgetsToCsv({}), 'Categoria;Limite mensal (R\$)\r\n');
   });
 }
