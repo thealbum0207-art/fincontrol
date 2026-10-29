@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../ads/fin_ad_banner.dart';
