@@ -6,6 +6,7 @@ on:
       - 'lib/**'
       - 'pubspec.yaml'
       - 'tool/configure_admob.py'
+      - 'tool/configure_branding.py'
       - '.github/workflows/validate-admob.yml'
   workflow_dispatch:
 
@@ -33,6 +34,7 @@ jobs:
         run: |
           flutter create --platforms=android --org com.app --project-name fincontrol .
           python3 tool/configure_admob.py
+          python3 tool/configure_branding.py
           # flutter create cria teste padrao para MyApp, que nao existe no FinControl.
           # Manter apenas os testes reais versionados no repositorio.
           rm -f test/widget_test.dart
