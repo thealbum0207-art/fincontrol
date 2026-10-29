@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../ads/fin_ad_banner.dart';
+import '../core/csv_export.dart';
 import '../core/dates.dart';
 import '../core/finance_math.dart';
 import '../core/fin_theme.dart';
@@ -152,6 +157,69 @@ class _FinHomePageState extends State<FinHomePage> {
     }
   }
 
+  /// Exportação iniciada somente por um comando explícito do usuário.
+  /// Os dados não são enviados automaticamente a nenhum serviço.
+  Future<void> _exportData() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Exportar meus dados?'),
+        content: const Text(
+          'O FinControl vai preparar dois arquivos CSV: lançamentos e '
+          'limites de orçamento. Eles podem conter dados financeiros '
+          'particulares. Escolha um destino confiável ao compartilhar. '
+          'A exportação não é uma restauração automática e não '
+          'altera os registros no aplicativo.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Continuar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      final transactions = await FinanceDb.instance.allTransactions();
+      final budgets = await FinanceDb.instance.loadBudgets();
+      if (!mounted) return;
+      if (transactions.isEmpty && budgets.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Não há dados financeiros para exportar.'),
+        ));
+        return;
+      }
+      final stamp = DateTime.now().toIso8601String().substring(0, 10);
+      await SharePlus.instance.share(ShareParams(
+        title: 'Exportar arquivos do FinControl',
+        subject: 'FinControl — exportação financeira',
+        files: [
+          XFile.fromData(
+            Uint8List.fromList(utf8.encode('\uFEFF${transactionsToCsv(transactions)}')),
+            mimeType: 'text/csv',
+          ),
+          XFile.fromData(
+            Uint8List.fromList(utf8.encode('\uFEFF${budgetsToCsv(budgets)}')),
+            mimeType: 'text/csv',
+          ),
+        ],
+        fileNameOverrides: [
+          'fincontrol-lancamentos-$stamp.csv',
+          'fincontrol-orcamentos-$stamp.csv',
+        ],
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Não foi possível preparar a exportação. Tente novamente.'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,16 +240,22 @@ class _FinHomePageState extends State<FinHomePage> {
                 style: TextStyle(fontSize: 11, fontWeight: FontWeight.w400)),
           ]),
         ]),
-        actions: [IconButton(
+        actions: [
+          IconButton(
+            tooltip: 'Exportar meus dados em CSV',
+            onPressed: _exportData,
+            icon: const Icon(Icons.file_download_outlined),
+          ),
+          IconButton(
           tooltip: 'Sobre os dados',
           icon: const Icon(Icons.info_outline_rounded),
           onPressed: () => showAboutDialog(
             context: context,
             applicationName: 'FinControl 2.0',
-            applicationVersion: '2.0.0 (protótipo funcional)',
+            applicationVersion: '2.0.7',
             children: [const Text(
               'Receitas, despesas e orçamentos ficam neste aparelho, em um banco SQLite local. '
-              'Esta versão não possui sincronização, backup ou integração bancária. '
+              'Esta versão não possui sincronização, backup automático ou integração bancária. '
               'Se você remover o app ou limpar seus dados, poderá perder os registros.'),
             ],
           ),
@@ -225,7 +299,7 @@ class _FinHomePageState extends State<FinHomePage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _tab == 2 ? null : FloatingActionButton.extended(
         onPressed: _loading ? null : () => _openForm(),
         icon: const Icon(Icons.add),
         label: const Text('Lançamento',
