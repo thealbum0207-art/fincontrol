@@ -246,11 +246,11 @@ class _FinHomePageState extends State<FinHomePage> {
             icon: const Icon(Icons.file_download_outlined),
           ),
           IconButton(
-          tooltip: 'Sobre os dados',
-          icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'Sobre os dados',
+            icon: const Icon(Icons.info_outline_rounded),
           onPressed: () => showAboutDialog(
             context: context,
-            applicationName: 'FinControl 2.0',
+            applicationName: 'FinControl',
             applicationVersion: '2.0.7',
             children: [const Text(
               'Receitas, despesas e orçamentos ficam neste aparelho, em um banco SQLite local. '
