@@ -473,11 +473,14 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
     body: FutureBuilder<Map<String, Object?>>(
       future: _future,
       builder: (context, snapshot) {
-        if (snapshot.hasError) return Center(child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text('Não foi possível carregar os dados: ${snapshot.error}')));
-        if (!snapshot.hasData) return const Center(
-          child: CircularProgressIndicator());
+        if (snapshot.hasError) {
+          return Center(child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text('Não foi possível carregar os dados: ${snapshot.error}')));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
         return RefreshIndicator(onRefresh: () async { _refresh(); },
           child: ListView(padding: const EdgeInsets.all(16),
             children: [_content(snapshot.data!)]));
