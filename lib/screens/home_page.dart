@@ -473,6 +473,8 @@ class _FinHomePageState extends State<FinHomePage> {
     transaction: transaction,
     onTap: () => _openForm(transaction),
     onDelete: () => _removeTransaction(transaction),
+    allowModification: transaction.note != 'Transferência interna' &&
+        transaction.note != 'Parcela paga',
   );
 
   Widget _sectionTitle(String text, {String? subtitle, Widget? trailing}) => Row(
