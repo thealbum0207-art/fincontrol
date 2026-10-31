@@ -9,7 +9,7 @@ import 'package:local_auth/local_auth.dart';
 const _storage = FlutterSecureStorage();
 
 String _derivePin(Map<String, String> payload) {
-  var bytes = utf8.encode('${payload['salt']}:${payload['pin']}');
+  List<int> bytes = utf8.encode('${payload['salt']}:${payload['pin']}');
   // The salt + repeated derivation provides protection in addition to
   // encrypted Android Keystore-backed application storage.
   for (var i = 0; i < 25000; i++) {
