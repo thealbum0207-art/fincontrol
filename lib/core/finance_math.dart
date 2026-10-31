@@ -26,7 +26,9 @@ Map<String, int> expenseByCategory(Iterable<FinTransaction> transactions) {
   final result = <String, int>{};
   for (final transaction in transactions) {
     if (transaction.kind != TransactionKind.expense ||
-        transaction.note == 'Transferência interna') continue;
+        transaction.note == 'Transferência interna') {
+      continue;
+    }
     result.update(transaction.category, (value) => value + transaction.amountCents,
         ifAbsent: () => transaction.amountCents);
   }
