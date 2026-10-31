@@ -55,6 +55,34 @@ void main() {
     expect((await upgraded.query('wallets')).single['name'], 'Principal');
     expect(await FinanceDb.instance.totalBalanceCents(), 245000);
     expect((await V3Store.rows('savings_goals')), isEmpty);
+    // Verify that newly created features can safely operate on migrated rows.
+    await V3Store.addGoal('Reserva', 100000);
+    await V3Store.contribute(1, 12500);
+    expect((await V3Store.rows('savings_goals')).single['saved_cents'], 12500);
+
+    await V3Store.addRecurring(title: 'Internet', amountCents: 8990,
+      income: false, category: 'Contas', nextDue: DateTime(2020, 1, 31));
+    await V3Store.postRecurring(1);
+    expect((await V3Store.rows('recurring_rules')).single['next_due_key'],
+      '2020-02-29'); // 2020 leap year.
+    expect(await FinanceDb.instance.totalBalanceCents(), 236010);
+
+    await V3Store.addCard('Teste', 50000, 15);
+    await V3Store.addPurchase(cardId: 1, title: 'Compra', totalCents: 10001,
+      parts: 3, firstDue: DateTime(2026, 11, 15));
+    final installments = await V3Store.rows('card_installments',
+      orderBy: 'part ASC');
+    expect(installments.map((p) => p['amount_cents']).toList(), [3334,3334,3333]);
+    await V3Store.payInstallment(installments.first['id'] as int);
+    await expectLater(V3Store.payInstallment(installments.first['id'] as int),
+      throwsStateError);
+    expect(await FinanceDb.instance.totalBalanceCents(), 232676);
+
+    await V3Store.addWallet('Reserva extra');
+    final beforeTransfer = await FinanceDb.instance.totalBalanceCents();
+    await V3Store.transfer(1, 2, 10000);
+    expect(await FinanceDb.instance.totalBalanceCents(), beforeTransfer);
+    expect(await V3Store.balanceForWallet(2), 10000);
     // The test keeps the DB open until the current isolate exits.
   });
 
