@@ -171,8 +171,9 @@ class _AppLockGateState extends State<AppLockGate>
 
   @override
   Widget build(BuildContext context) {
-    if (!_ready) return const Scaffold(
-      body: Center(child: CircularProgressIndicator()));
+    if (!_ready) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     if (!_locked) return widget.child;
     return Scaffold(body: SafeArea(child: Center(
       child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420),
