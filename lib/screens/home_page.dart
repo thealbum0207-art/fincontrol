@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../ads/fin_ad_banner.dart';
 import '../core/dates.dart';
 import '../core/finance_math.dart';
 import '../core/fin_theme.dart';
@@ -11,6 +10,7 @@ import '../data/finance_db.dart';
 import '../models/fin_transaction.dart';
 import '../widgets/transaction_tile.dart';
 import 'transaction_form_page.dart';
+import 'v3_hub_page.dart';
 
 class FinHomePage extends StatefulWidget {
   const FinHomePage({super.key});
@@ -173,15 +173,20 @@ class _FinHomePageState extends State<FinHomePage> {
           ]),
         ]),
         actions: [IconButton(
+          tooltip: 'FinControl 3.0: ferramentas',
+          icon: const Icon(Icons.apps_rounded),
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const V3HubPage())),
+        ), IconButton(
           tooltip: 'Sobre os dados',
           icon: const Icon(Icons.info_outline_rounded),
           onPressed: () => showAboutDialog(
             context: context,
-            applicationName: 'FinControl 2.0',
-            applicationVersion: '2.0.0 (protótipo funcional)',
+            applicationName: 'FinControl 3.0',
+            applicationVersion: '3.0.0',
             children: [const Text(
               'Receitas, despesas e orçamentos ficam neste aparelho, em um banco SQLite local. '
-              'Esta versão não possui sincronização, backup ou integração bancária. '
+              'Esta versão não possui sincronização bancária. '
               'Se você remover o app ou limpar seus dados, poderá perder os registros.'),
             ],
           ),
@@ -207,11 +212,7 @@ class _FinHomePageState extends State<FinHomePage> {
                     ),
                   ),
                 )),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const FinAdBanner(),
-          NavigationBar(
+      bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (index) => setState(() => _tab = index),
         destinations: const [
@@ -221,8 +222,6 @@ class _FinHomePageState extends State<FinHomePage> {
               selectedIcon: Icon(Icons.receipt_long), label: 'Lançamentos'),
           NavigationDestination(icon: Icon(Icons.track_changes_outlined),
               selectedIcon: Icon(Icons.track_changes), label: 'Orçamentos'),
-        ],
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -474,6 +473,8 @@ class _FinHomePageState extends State<FinHomePage> {
     transaction: transaction,
     onTap: () => _openForm(transaction),
     onDelete: () => _removeTransaction(transaction),
+    allowModification: transaction.note != 'Transferência interna' &&
+        transaction.note != 'Parcela paga',
   );
 
   Widget _sectionTitle(String text, {String? subtitle, Widget? trailing}) => Row(

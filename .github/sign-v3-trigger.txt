@@ -1,0 +1,4 @@
+FinControl 3 signed release candidate
+Branch: feat/fincontrol-3-offline
+Purpose: build a signed AAB only after GitHub securely validates upload key SHA1.
+Do not publish automatically.

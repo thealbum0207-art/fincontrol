@@ -11,6 +11,8 @@ FinanceTotals sumTransactions(Iterable<FinTransaction> transactions) {
   var income = 0;
   var expense = 0;
   for (final transaction in transactions) {
+    // Internal wallet transfers are not income or spending.
+    if (transaction.note == 'Transferência interna') continue;
     if (transaction.kind == TransactionKind.income) {
       income += transaction.amountCents;
     } else {
@@ -23,7 +25,10 @@ FinanceTotals sumTransactions(Iterable<FinTransaction> transactions) {
 Map<String, int> expenseByCategory(Iterable<FinTransaction> transactions) {
   final result = <String, int>{};
   for (final transaction in transactions) {
-    if (transaction.kind != TransactionKind.expense) continue;
+    if (transaction.kind != TransactionKind.expense ||
+        transaction.note == 'Transferência interna') {
+      continue;
+    }
     result.update(transaction.category, (value) => value + transaction.amountCents,
         ifAbsent: () => transaction.amountCents);
   }

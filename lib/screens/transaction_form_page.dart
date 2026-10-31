@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../core/dates.dart';
 import '../core/money.dart';
 import '../data/finance_db.dart';
+import '../data/v3_store.dart';
 import '../models/fin_transaction.dart';
 
 class TransactionFormPage extends StatefulWidget {
@@ -23,6 +24,8 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   late String _category;
   late DateTime _date;
   bool _saving = false;
+  int _walletId = 1;
+  List<Map<String, Object?>> _wallets = [{'id': 1, 'name': 'Principal'}];
 
   @override
   void initState() {
@@ -36,6 +39,16 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
     _kind = existing?.kind ?? TransactionKind.expense;
     _category = existing?.category ?? categoriesFor(_kind).first;
     _date = existing?.date ?? DateTime.now();
+    _walletId = existing?.walletId ?? 1;
+    _loadWallets();
+  }
+
+  Future<void> _loadWallets() async {
+    try {
+      final wallets = await V3Store.rows('wallets', orderBy: 'id');
+      if (!mounted) return;
+      setState(() { _wallets = wallets; });
+    } catch (_) { /* Continue with the default wallet. */ }
   }
 
   @override
@@ -70,6 +83,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
         category: _category,
         date: _date,
         note: _note.text.trim(),
+        walletId: _walletId,
       ));
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -150,6 +164,19 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                     onChanged: (value) {
                       if (value != null) setState(() => _category = value);
                     },
+                  ),
+                  const SizedBox(height: 18),
+                  DropdownButtonFormField<int>(
+                    key: ValueKey(_walletId),
+                    initialValue: _walletId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Carteira',
+                      prefixIcon: Icon(Icons.account_balance_wallet_outlined)),
+                    items: _wallets.map((wallet) => DropdownMenuItem<int>(
+                      value: wallet['id'] as int,
+                      child: Text(wallet['name'] as String))).toList(),
+                    onChanged: (v) { if (v != null) setState(() => _walletId = v); },
                   ),
                   const SizedBox(height: 18),
                   Card(

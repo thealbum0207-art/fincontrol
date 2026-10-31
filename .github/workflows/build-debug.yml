@@ -1,9 +1,9 @@
-name: Testar FinControl e compilar APK mais AAB
+name: Testar FinControl 3 e compilar APK mais AAB
 
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feat/fincontrol-3-offline]
 
 concurrency:
   group: fincontrol-android-build
@@ -27,6 +27,8 @@ jobs:
           cache: true
       - name: Gerar projeto Android
         run: flutter create --platforms=android --org com.app --project-name fincontrol .
+      - name: Configurar biometria Android
+        run: python3 tool/configure_v3_android.py
       - name: Dependencias
         run: flutter pub get
       - name: Remover teste exemplo criado automaticamente pelo Flutter
@@ -40,7 +42,7 @@ jobs:
       - name: Disponibilizar APK real
         uses: actions/upload-artifact@v4
         with:
-          name: FinControl-2-debug-apk
+          name: FinControl-3-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
 
       - name: Compilar Android App Bundle (AAB) para verificar o release
@@ -53,5 +55,5 @@ jobs:
       - name: Disponibilizar AAB com assinatura provisoria (NAO PUBLICAR)
         uses: actions/upload-artifact@v4
         with:
-          name: FinControl-2-release-aab-assinatura-provisoria
+          name: FinControl-3-release-aab-assinatura-provisoria
           path: build/app/outputs/bundle/release/app-release.aab

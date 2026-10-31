@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/fin_theme.dart';
 import 'screens/home_page.dart';
+import 'screens/security_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,6 @@ class FinControlApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const FinHomePage(),
+        home: const AppLockGate(child: FinHomePage()),
       );
 }
