@@ -49,7 +49,7 @@ class V3Store {
       'title': title.trim(), 'amount_cents': amountCents,
       'kind': income ? 'income' : 'expense', 'category': category,
       'wallet_id': walletId, 'next_due_key': dateKey(nextDue),
-      'repeat_months': 1, 'enabled': 1,
+      'repeat_months': 1, 'day_of_month': nextDue.day, 'enabled': 1,
     });
   }
 
@@ -57,6 +57,12 @@ class V3Store {
     final first = DateTime(day.year, day.month + months, 1);
     final last = DateTime(first.year, first.month + 1, 0).day;
     return DateTime(first.year, first.month, math.min(day.day, last));
+  }
+
+  static DateTime addMonthsWithDay(DateTime date, int months, int day) {
+    final first = DateTime(date.year, date.month + months, 1);
+    final last = DateTime(first.year, first.month + 1, 0).day;
+    return DateTime(first.year, first.month, math.min(day, last));
   }
 
   /// A manual confirmation posts a recurring entry exactly once and
@@ -69,13 +75,17 @@ class V3Store {
       if (items.length != 1) throw StateError('Recurring rule missing');
       final r = items.single;
       final due = DateTime.parse(r['next_due_key'] as String);
+      if (due.isAfter(DateTime.now())) {
+        throw StateError('Este lançamento ainda não venceu.');
+      }
       await txn.insert('transactions', {
         'title': r['title'], 'amount_cents': r['amount_cents'],
         'kind': r['kind'], 'category': r['category'],
         'date_key': dateKey(due), 'note': 'Lançamento recorrente',
         'wallet_id': r['wallet_id'],
       });
-      final next = addMonthsClamped(due, r['repeat_months'] as int);
+      final next = addMonthsWithDay(due, r['repeat_months'] as int,
+          r['day_of_month'] as int);
       await txn.update('recurring_rules', {'next_due_key': dateKey(next)},
           where: 'id = ?', whereArgs: [ruleId]);
     });
@@ -221,7 +231,8 @@ class V3Store {
           if (r['kind'] == 'income') { income += r['amount_cents'] as int; }
           else { expenses += r['amount_cents'] as int; }
         }
-        next = addMonthsClamped(next, r['repeat_months'] as int);
+        next = addMonthsWithDay(next, r['repeat_months'] as int,
+            r['day_of_month'] as int);
       }
     }
     final unpaid = await rows('card_installments',
