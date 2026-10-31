@@ -16,6 +16,7 @@ class FinTransaction {
     required this.category,
     required this.date,
     this.note = '',
+    this.walletId = 1,
   });
 
   final int? id;
@@ -25,6 +26,7 @@ class FinTransaction {
   final String category;
   final DateTime date;
   final String note;
+  final int walletId;
 
   Map<String, Object?> toMap() => {
         if (id != null) 'id': id,
@@ -34,6 +36,7 @@ class FinTransaction {
         'category': category,
         'date_key': dateKey(date),
         'note': note,
+        'wallet_id': walletId,
       };
 
   factory FinTransaction.fromMap(Map<String, Object?> row) => FinTransaction(
@@ -46,6 +49,7 @@ class FinTransaction {
         category: row['category'] as String,
         date: DateTime.parse(row['date_key'] as String),
         note: (row['note'] as String?) ?? '',
+        walletId: (row['wallet_id'] as int?) ?? 1,
       );
 }
 
