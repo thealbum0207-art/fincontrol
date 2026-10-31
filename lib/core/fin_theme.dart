@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-const finGreen = Color(0xFF23C59E);
-const finInk = Color(0xFF12202A);
+const finGreen = Color(0xFF74E1B0);
+const finInk = Color(0xFF101C2C);
 
 ThemeData finTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
   final scheme = ColorScheme.fromSeed(
     seedColor: finGreen,
     brightness: brightness,
-    surface: dark ? const Color(0xFF111C22) : const Color(0xFFF7FAF9),
+    surface: dark ? const Color(0xFF101C2C) : const Color(0xFFF6F8FB),
   );
   return ThemeData(
     useMaterial3: true,
@@ -22,19 +22,19 @@ ThemeData finTheme(Brightness brightness) {
     ),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: dark ? const Color(0xFF1A292F) : Colors.white,
+      color: dark ? const Color(0xFF1C2C40) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: dark ? const Color(0xFF1B2A31) : Colors.white,
+      fillColor: dark ? const Color(0xFF1C2C40) : Colors.white,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: dark ? const Color(0xFF132329) : Colors.white,
+      backgroundColor: dark ? const Color(0xFF14253A) : Colors.white,
       indicatorColor: finGreen.withValues(alpha: 0.20),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
