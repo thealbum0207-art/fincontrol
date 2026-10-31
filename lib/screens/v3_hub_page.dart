@@ -177,6 +177,20 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
       category: input[2].isEmpty ? 'Outros' : input[2], nextDue: due));
   }
 
+  Future<void> _confirmRecurring(int id) async {
+    final ok = await showDialog<bool>(context: context, builder: (ctx) =>
+      AlertDialog(title: const Text('Registrar movimentação?'),
+        content: const Text('Este lançamento altera o saldo e avança a '
+          'próxima data da recorrência.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Registrar')),
+        ]));
+    if (ok == true) await _execute(() => V3Store.postRecurring(id));
+  }
+
   Future<void> _createGoal() async {
     final input = await _prompt('Nova meta', ['Objetivo', 'Valor alvo (R\$)']);
     if (input == null) return;
@@ -316,7 +330,7 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
             _tile('${r['title']} • ${Money.format(r['amount_cents'] as int)}',
               'Próximo: ${r['next_due_key']} • ${r['kind'] == 'income' ? 'Receita' : 'Despesa'}'
               ' • Toque para lançar e avançar a data',
-              onTap: () => _execute(() => V3Store.postRecurring(r['id'] as int))),
+              onTap: () => _confirmRecurring(r['id'] as int)),
         ]);
       case 1:
         final goals = data['goals'] as List<Map<String, Object?>>;
@@ -330,7 +344,7 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
               onTap: () => _contribute(g['id'] as int)),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 20),
               child: LinearProgressIndicator(value: ((g['saved_cents'] as int) /
-                (g['target_cents'] as int)).clamp(0.0, 1.0))),
+                (g['target_cents'] as int)).clamp(0.0, 1.0).toDouble())),
           ],
           const SizedBox(height: 12),
           const Text('O progresso da meta não movimenta o saldo.'),
@@ -344,6 +358,7 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
           for (final card in cards)
             _tile(card['name'] as String,
               'Limite: ${Money.format(card['limit_cents'] as int)}'
+              ' • Pendente: ${Money.format(parts.where((p) => p['card_id'] == card['id'] && p['posted_transaction_id'] == null).fold<int>(0, (total, p) => total + (p['amount_cents'] as int)))}'
               ' • Vence dia ${card['due_day']} • Toque para parcelar compra',
               onTap: () => _purchase(card['id'] as int)),
           const ListTile(title: Text('Parcelas cadastradas')),
@@ -369,7 +384,7 @@ class _V3FeaturePageState extends State<V3FeaturePage> {
             _tile(c['category'] as String, Money.format((c['total'] as num).toInt())),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 18),
               child: LinearProgressIndicator(value: expense == 0 ? 0 :
-                ((c['total'] as num).toDouble() / expense).clamp(0.0, 1.0))),
+                ((c['total'] as num).toDouble() / expense).clamp(0.0, 1.0).toDouble())),
           ],
         ]);
       case 4:
