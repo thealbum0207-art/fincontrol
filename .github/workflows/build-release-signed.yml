@@ -1,14 +1,7 @@
-name: FinControl AAB release com assinatura autorizada
+name: FinControl 3 AAB assinado sem anuncios
 
 on:
   workflow_dispatch:
-    inputs:
-      live_ads:
-        description: 'Exibir anuncios reais (somente depois da revisao AdMob)?'
-        required: true
-        type: boolean
-        default: false
-
 permissions:
   contents: read
 
@@ -67,7 +60,7 @@ jobs:
       - name: Criar estrutura Android
         run: |
           flutter create --platforms=android --org com.app --project-name fincontrol .
-          python3 tool/configure_admob.py
+          python3 tool/configure_v3_android.py
       - name: Instalar dependencias e configurar release
         env:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
@@ -86,7 +79,10 @@ jobs:
           FINCONTROL_STORE_PASSWORD: ${{ secrets.FINCONTROL_STORE_PASSWORD }}
           FINCONTROL_KEY_ALIAS: ${{ secrets.FINCONTROL_KEY_ALIAS }}
           FINCONTROL_KEY_PASSWORD: ${{ secrets.FINCONTROL_KEY_PASSWORD }}
-        run: flutter build appbundle --release --dart-define=ADMOB_LIVE_ADS=${{ inputs.live_ads }}
+        run: flutter build appbundle --release
+      - name: Validar ausencia de SDK de anuncios
+        run: |
+          ! grep -R 'google_mobile_ads\|com.google.android.gms.ads.APPLICATION_ID' pubspec.yaml android/app/src/main/AndroidManifest.xml lib || exit 1
       - name: Validar AAB
         run: |
           jarsigner -verify build/app/outputs/bundle/release/app-release.aab
@@ -94,7 +90,7 @@ jobs:
       - name: Disponibilizar AAB assinado
         uses: actions/upload-artifact@v4
         with:
-          name: FinControl-AAB-release-assinado
+          name: FinControl-3-AAB-release-assinado
           path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 7
