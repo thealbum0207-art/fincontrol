@@ -2,6 +2,11 @@ name: FinControl 3 AAB assinado sem anuncios
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feat/fincontrol-3-offline
+    paths:
+      - .github/sign-v3-trigger.txt
 permissions:
   contents: read
 
