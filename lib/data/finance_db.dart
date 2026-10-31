@@ -73,6 +73,7 @@ class FinanceDb {
         wallet_id INTEGER NOT NULL DEFAULT 1,
         next_due_key TEXT NOT NULL,
         repeat_months INTEGER NOT NULL DEFAULT 1 CHECK(repeat_months >= 1),
+        day_of_month INTEGER NOT NULL DEFAULT 1 CHECK(day_of_month BETWEEN 1 AND 31),
         enabled INTEGER NOT NULL DEFAULT 1
       )
     """);
