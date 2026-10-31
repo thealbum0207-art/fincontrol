@@ -10,11 +10,13 @@ class TransactionTile extends StatelessWidget {
     required this.transaction,
     required this.onTap,
     required this.onDelete,
+    this.allowModification = true,
   });
 
   final FinTransaction transaction;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final bool allowModification;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class TransactionTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 9),
       child: ListTile(
-        onTap: onTap,
+        onTap: allowModification ? onTap : null,
         contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
         leading: CircleAvatar(
           backgroundColor: color.withValues(alpha: .12),
@@ -41,7 +43,7 @@ class TransactionTile extends StatelessWidget {
           Text('${income ? '+' : '-'}${Money.format(transaction.amountCents)}',
               style: TextStyle(fontWeight: FontWeight.w800, color: color,
                   fontSize: 13)),
-          PopupMenuButton<String>(
+          if (allowModification) PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, size: 20, color: scheme.onSurfaceVariant),
             tooltip: 'Opções do lançamento',
             onSelected: (selection) {
